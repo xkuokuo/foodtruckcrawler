@@ -1,0 +1,7 @@
+source 'https://rubygems.org'
+gem 'sinatra'
+gem 'erubis'
+gem 'json'
+gem 'selenium-webdriver'
+gem 'pry'
+gem 'rspec','~> 3.0'

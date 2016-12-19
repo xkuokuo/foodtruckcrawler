@@ -1,0 +1,4 @@
+{
+    "component_name": "test_foodtrucks",
+    "xpath": "//div[@class='w-actionbox-text']/h2"
+}
