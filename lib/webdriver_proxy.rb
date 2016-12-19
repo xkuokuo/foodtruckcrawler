@@ -19,6 +19,10 @@ class WebdriverProxy
     @driver.url
   end
 
+  def page_source
+    @driver.page_source
+  end
+
   def find_elements_by_xpath (xpath)
     @driver.find_elements(:xpath, xpath)
   end

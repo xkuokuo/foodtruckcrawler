@@ -1,7 +1,7 @@
 require 'webdriver_proxy'
-require 'json_crawler'
+require 'template_crawler'
 
-RSpec.describe JsonCrawler, "#crawl" do
+RSpec.describe TemplateCrawler, "#crawl" do
   context "Given an valid foodtrucks URL and a corresponding json template" do
     it "should return the food truck info" do
       url = "http://www.seattlefoodtruck.com"
@@ -13,8 +13,8 @@ RSpec.describe JsonCrawler, "#crawl" do
         end
       end
       template = JSON.parse(template_str)
-      json_crawler = JsonCrawler.new driver
-      puts json_crawler.crawl(url, template)
+      template_crawler = TemplateCrawler.new driver
+      puts template_crawler.crawl(url, template)
       #expect(json_crawler.crawl(url, template).to_a).to match_array({name:"dummy"}.to_a)
       driver.close
     end

@@ -1,4 +1,14 @@
 {
-    "component_name": "test_foodtrucks",
-    "xpath": "//div[@class='w-actionbox-text']/h2"
+    "name": "foodtruck",
+    "xpath": "//a[@class='w-portfolio-item-anchor']",
+    "display_or_not": false,
+    "children": [{
+            "name": "foodtruck name",
+            "display_or_not": true,
+            "xpath": ".//h2"
+        }, {
+            "name": "foodtruck picture",
+            "display_or_not": true,
+            "xpath": ".//img"
+    }]
 }
