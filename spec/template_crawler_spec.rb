@@ -8,7 +8,7 @@ RSpec.describe TemplateCrawler, "#crawl" do
       url = "http://www.seattlefoodtruck.com"
       driver = WebdriverProxy.new :chrome
       template_str = ""
-      File.open(File.dirname(__FILE__) +"/data/foodtrucks.json") do |f|
+      File.open(File.dirname(__FILE__) +"/data/foodtruckhome.json") do |f|
         f.each_line do |line|
           template_str = template_str + line
         end

@@ -16,15 +16,15 @@ class TaskManager
   end
 
   def submit(urls, templates)
+    puts "Submit urls: #{urls}"
     if urls.respond_to?("each")
       urls.each do |url|
         template = find_templates_for_url(url, templates)
         crawler = TemplateCrawler.new @webdriver
         res =  crawler.crawl(url, template)
         if res[:next_steps].present?
-          res[:next_steps].each do |link|
-            puts link
-            @webdriver.goto link
+          res[:next_steps].each do |next_url|
+            submit(next_url, find_templates_for_url(next_url, templates))
             sleep(1)
           end
         end
@@ -33,10 +33,10 @@ class TaskManager
       template = find_templates_for_url(urls, templates)
       crawler = TemplateCrawler.new @webdriver
       res = crawler.crawl(urls, template)
+      puts res
       if res[:next_steps].present?
-        res[:next_steps].each do |link|
-          puts link
-          @webdriver.goto link
+        res[:next_steps].each do |next_url|
+          submit(next_url, find_templates_for_url(next_url, templates))
           sleep(1)
         end
       end
@@ -59,7 +59,7 @@ class TaskManager
         end
     end
     if res.nil?
-      raise "No template find for url!"
+      raise "No template find for url! #{url}"
     end
     res
   end

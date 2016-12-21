@@ -1,0 +1,16 @@
+{
+    "matched_url": "^http:\/\/www\.seattlefoodtruck\.com\/food-trucks\/.+$",
+    "name": "foodtruck",
+    "xpath": "//div[@class=' full-width']",
+    "display_or_not": false,
+    "children": [{
+            "name": "foodtruck name",
+            "display_or_not": true,
+            "xpath": ".//h2"
+        }, {
+            "name": "menu",
+            "display_or_not": true,
+            "xpath": ".//div[@class='wpb_wrapper']"
+    }],
+    "next_steps": null
+}
