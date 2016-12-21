@@ -1,3 +1,4 @@
+require 'json'
 require 'webdriver_proxy'
 require 'template_crawler'
 
@@ -14,7 +15,7 @@ RSpec.describe TemplateCrawler, "#crawl" do
       end
       template = JSON.parse(template_str)
       template_crawler = TemplateCrawler.new driver
-      puts template_crawler.crawl(url, template)
+      template_crawler.crawl(url, template).to_json
       #expect(json_crawler.crawl(url, template).to_a).to match_array({name:"dummy"}.to_a)
       driver.close
     end

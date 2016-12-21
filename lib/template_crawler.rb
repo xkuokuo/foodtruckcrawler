@@ -12,17 +12,15 @@ class TemplateCrawler
   end
 
   def crawl(url, template)
-    #binding.pry
     @webdriver.goto url
     page_source = @webdriver.page_source
     doc = Nokogiri::HTML(page_source)
-    res = parse_doc(doc, template)
-    puts "res is : #{res}"
+    next_steps = doc.xpath(template["next_steps"]).map {|step| step.value}
+    res = {content: parse_doc(doc, template), next_steps: next_steps}
     res
   end
 
   def parse_doc(doc, template)
-    #binding.pry
     name = template["name"]
     xpath = template["xpath"]
     display_or_not = template["display_or_not"]
@@ -30,7 +28,6 @@ class TemplateCrawler
     elements = doc.xpath(xpath)
     children_template = template["children"]
 
-    #puts "Elements: #{elements}"
     res = elements.map do |element|  
       content = nil
       if display_or_not
@@ -43,7 +40,6 @@ class TemplateCrawler
       tmpres = {name: name, content: content, children: nil}
       children = []
       if children_template.nil?
-        puts "No children, parser terminate"
       elsif children_template.class == Array
         children_template.each do |child_template|
           children.push(parse_doc(element, child_template))
