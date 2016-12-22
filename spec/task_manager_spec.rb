@@ -53,10 +53,15 @@ end
 
 def readfile(filename)
   res_str = ""
-  File.open(File.dirname(__FILE__) +filename) do |f|
-    f.each_line do |line|
+  File.open(File.dirname(__FILE__) +filename) { |f|
+    f.each_line { |line|
       res_str = res_str + line
-    end
-  end
+    }
+  }
   res_str
+end
+
+class MockAggregator
+  def aggregate obj
+  end
 end

@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'pry'
 require 'template_crawler'
+require 'simple_file_aggregator'
 
 class TaskManager
   def initialize(webdriver:, urls:, templates:, depth: 10)
@@ -8,6 +9,7 @@ class TaskManager
     @urls = urls
     @templates = templates
     @depth = depth
+    @aggregator = SimpleFileAggregator.new("aggregate_result.txt")
   end
 
   def start()
@@ -20,8 +22,9 @@ class TaskManager
     if urls.respond_to?("each")
       urls.each do |url|
         template = find_templates_for_url(url, templates)
-        crawler = TemplateCrawler.new @webdriver
+        crawler = TemplateCrawler.new(@webdriver)
         res =  crawler.crawl(url, template)
+        @aggregator.aggregate(res)
         if res[:next_steps].present?
           res[:next_steps].each do |next_url|
             submit(next_url, find_templates_for_url(next_url, templates))
@@ -31,9 +34,9 @@ class TaskManager
       end
     else 
       template = find_templates_for_url(urls, templates)
-      crawler = TemplateCrawler.new @webdriver
+      crawler = TemplateCrawler.new(@webdriver)
       res = crawler.crawl(urls, template)
-      puts res
+      @aggregator.aggregate(res)
       if res[:next_steps].present?
         res[:next_steps].each do |next_url|
           submit(next_url, find_templates_for_url(next_url, templates))

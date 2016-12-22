@@ -14,7 +14,7 @@ RSpec.describe TemplateCrawler, "#crawl" do
         end
       end
       template = JSON.parse(template_str)
-      template_crawler = TemplateCrawler.new driver
+      template_crawler = TemplateCrawler.new(driver)
       template_crawler.crawl(url, template).to_json
       #expect(json_crawler.crawl(url, template).to_a).to match_array({name:"dummy"}.to_a)
       driver.close
