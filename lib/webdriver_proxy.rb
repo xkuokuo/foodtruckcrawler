@@ -1,7 +1,7 @@
 require "selenium-webdriver"
 
 class WebdriverProxy
-  def initialize(browser_type, page_load_timeout=10,implicit_wait_timeout=10)
+  def initialize(browser_type, page_load_timeout=20,implicit_wait_timeout=20)
     @driver = Selenium::WebDriver.for browser_type
     @driver.manage.timeouts.page_load = page_load_timeout #secodns
     @driver.manage.timeouts.implicit_wait = implicit_wait_timeout #secodns

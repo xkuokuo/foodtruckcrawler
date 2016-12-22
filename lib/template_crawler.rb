@@ -16,7 +16,7 @@ class TemplateCrawler
     page_source = @webdriver.page_source
     doc = Nokogiri::HTML(page_source)
     next_steps = doc.xpath(template["next_steps"]).map {|step| step.value}
-    res = {content: parse_doc(doc, template), next_steps: next_steps}
+    res = {url: url, content: parse_doc(doc, template), next_steps: next_steps}
     res
   end
 

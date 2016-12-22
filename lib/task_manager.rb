@@ -4,11 +4,12 @@ require 'template_crawler'
 require 'simple_file_aggregator'
 
 class TaskManager
-  def initialize(webdriver:, urls:, templates:, depth: 10)
+  def initialize(webdriver:, urls:, templates:, limit: 100)
     @webdriver = webdriver
     @urls = urls
     @templates = templates
-    @depth = depth
+    @limit= limit
+    @count = 0
     @aggregator = SimpleFileAggregator.new("aggregate_result.txt")
   end
 
@@ -18,7 +19,11 @@ class TaskManager
   end
 
   def submit(urls, templates)
-    puts "Submit urls: #{urls}"
+    @count = @count + 1;
+    if @count > @limit
+      return
+    end
+    puts "Crawling urls: #{urls}"
     if urls.respond_to?("each")
       urls.each do |url|
         template = find_templates_for_url(url, templates)
