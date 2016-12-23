@@ -42,7 +42,6 @@ RSpec.describe TaskManager, "#start" do
 
       templates = []
       templates = [JSON.parse(readfile("/data/foodtruckhome.json")), JSON.parse(readfile("/data/foodtruck.json"))]
-      
 
       task_manager = TaskManager.new(webdriver: driver, urls: url, templates: templates)
       task_manager.start

@@ -1,16 +1,16 @@
 #!/usr/bin/env ruby
 require 'pry'
-require 'template_crawler'
-require 'simple_file_aggregator'
+require_relative 'template_crawler'
+require_relative 'simple_file_aggregator'
 
 class TaskManager
-  def initialize(webdriver:, urls:, templates:, limit: 100)
+  def initialize(webdriver:, urls:, templates:, limit: 100, aggregator:)
     @webdriver = webdriver
     @urls = urls
     @templates = templates
     @limit= limit
     @count = 0
-    @aggregator = SimpleFileAggregator.new("aggregate_result.txt")
+    @aggregator = aggregator
   end
 
   def start()
