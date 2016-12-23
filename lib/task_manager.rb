@@ -9,46 +9,53 @@ class TaskManager
     @urls = urls
     @templates = templates
     @limit= limit
-    @count = 0
     @aggregator = aggregator
   end
 
   def start()
-    puts "Let's start!"
     submit(@urls, @templates)
   end
 
   def submit(urls, templates)
-    @count = @count + 1;
-    if @count > @limit
-      return
-    end
     puts "Crawling urls: #{urls}"
+    if @aggregator.count > @limit
+      puts "reached crawling limit #{@limit}"
+      return false
+    end
     if urls.respond_to?("each")
       urls.each do |url|
+        if @aggregator.has_crawled(url)
+          next
+        end
         template = find_templates_for_url(url, templates)
         crawler = TemplateCrawler.new(@webdriver)
         res =  crawler.crawl(url, template)
         @aggregator.aggregate(res)
         if res[:next_steps].present?
           res[:next_steps].each do |next_url|
-            submit(next_url, find_templates_for_url(next_url, templates))
-            sleep(1)
+            if submit(next_url, find_templates_for_url(next_url, templates))
+              sleep(1)
+            end
           end
         end
       end
     else 
+      if @aggregator.has_crawled(urls)
+        return false
+      end
       template = find_templates_for_url(urls, templates)
       crawler = TemplateCrawler.new(@webdriver)
       res = crawler.crawl(urls, template)
       @aggregator.aggregate(res)
       if res[:next_steps].present?
         res[:next_steps].each do |next_url|
-          submit(next_url, find_templates_for_url(next_url, templates))
-          sleep(1)
+          if submit(next_url, find_templates_for_url(next_url, templates))
+            sleep(1)
+          end
         end
       end
     end
+    return true
   end
 
   def find_templates_for_url(url, templates)

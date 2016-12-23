@@ -12,5 +12,5 @@
             "display_or_not": true,
             "xpath": "(.//div[@class='w-tabs-section-content-h i-cf'])[2]"
     }],
-    "next_steps": null
+    "next_steps":"//a[@class='w-portfolio-item-anchor']/@href"
 }
