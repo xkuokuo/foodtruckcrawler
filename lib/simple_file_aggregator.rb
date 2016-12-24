@@ -8,14 +8,14 @@ class SimpleFileAggregator
     @has_crawled = {}
     @count = 0;
     @mutex = Mutex.new
-    if File.exist?(filename)
+    if !File.exist?(filename)
       File.open(filename, 'w') {|f| f.write('')}
     end
   end
 
   def aggregate(obj)
     @count += 1
-    if !obj.present? 
+    if obj.nil? 
       return
     end
     @has_crawled[obj[:url]] = true

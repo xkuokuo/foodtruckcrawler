@@ -8,6 +8,7 @@ RSpec.describe SimpleFileAggregator, "#start" do
       file_name = "dummy_file.txt"
       aggregator = SimpleFileAggregator.new(file_name)
       expect(File.exist?(file_name)).to eq true
+      File.delete(file_name)
     end
   end
 end
@@ -16,9 +17,9 @@ RSpec.describe SimpleFileAggregator, "#start" do
   context "Given a vaid non-exist filename, and a obj" do
     it "should create the file and write to the file" do
       file_name = "dummy_file.txt"
-      obj = "dummy"
+      obj = {url:"dummy"}
       aggregator = SimpleFileAggregator.new(file_name)
-      aggregator.aggregate("dummy")
+      aggregator.aggregate(obj)
 
       test = ''
       File.open(file_name) { |f|
@@ -27,6 +28,7 @@ RSpec.describe SimpleFileAggregator, "#start" do
         }
       }
       expect(test.strip).to eq(obj.to_json)
+      File.delete(file_name)
     end
   end
 end

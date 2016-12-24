@@ -9,26 +9,11 @@ RSpec.describe TaskManager, "#start" do
       url = "http://www.seattlefoodtruck.com"
       driver = WebdriverProxy.new :chrome
 
-      template = JSON.parse(readfile("/data/foodtruckhome.json"))
+      template = JSON.parse(readfile("../template/foodtruckhome.json"))
       template["next_steps"] = nil
     
-      task_manager = TaskManager.new(webdriver: driver, urls: url, templates: template)
+      task_manager = TaskManager.new(webdriver: driver, urls: url, templates: template, aggregator: MockAggregator.new)
       task_manager.start
-      driver.close
-    end
-  end
-end
-
-RSpec.describe TaskManager, "#start" do
-  context "Given an in-valid foodtrucks URL" do
-    it "should raise exception" do
-      url = "http://www.seattlefoodtruck_invalid.com"
-      driver = WebdriverProxy.new :chrome
-
-      template = JSON.parse(readfile("/data/foodtruckhome.json"))
-
-      task_manager = TaskManager.new(webdriver: driver, urls: url, templates: template)
-      expect {task_manager.start}.to raise_error
       driver.close
     end
   end
@@ -43,7 +28,7 @@ RSpec.describe TaskManager, "#start" do
       templates = []
       templates = [JSON.parse(readfile("/data/foodtruckhome.json")), JSON.parse(readfile("/data/foodtruck.json"))]
 
-      task_manager = TaskManager.new(webdriver: driver, urls: url, templates: templates)
+      task_manager = TaskManager.new(webdriver: driver, urls: url, templates: templates, aggregator: MockAggregator.new)
       task_manager.start
       driver.close
     end
@@ -52,7 +37,7 @@ end
 
 def readfile(filename)
   res_str = ""
-  File.open(File.dirname(__FILE__) +filename) { |f|
+  File.open(File.join(File.dirname(__FILE__), filename)) { |f|
     f.each_line { |line|
       res_str = res_str + line
     }
@@ -61,6 +46,15 @@ def readfile(filename)
 end
 
 class MockAggregator
+
+  def count
+    1
+  end
+
   def aggregate obj
+  end
+
+  def has_crawled url
+    true
   end
 end

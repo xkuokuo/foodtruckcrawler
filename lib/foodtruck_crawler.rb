@@ -7,7 +7,7 @@ class FoodtruckCrawler
   def start
     puts "Let's Start!"
     url = "http://www.seattlefoodtruck.com"
-    filename = "../aggregator_result.txt"
+    filename = "../var/output/aggregator_result.txt"
     filename = File.join(File.dirname(__FILE__), filename)
     driver = WebdriverProxy.new :chrome
     templates = []

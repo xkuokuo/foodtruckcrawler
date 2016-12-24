@@ -12,7 +12,7 @@ class DfsTaskScheduler
         add_task task
       }
     else
-      add_task task
+      add_task tasks
     end
   end
 

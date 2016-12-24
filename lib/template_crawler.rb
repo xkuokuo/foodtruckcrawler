@@ -10,6 +10,7 @@ require_relative 'webdriver_proxy'
 class TemplateCrawler
   def initialize(webdriver)
     @webdriver = webdriver
+    @logger = Logger.new STDOUT
   end
 
   def crawl(url, template)
@@ -30,6 +31,7 @@ class TemplateCrawler
     children_template = template["children"]
 
     res = elements.map do |element|  
+      #A bunch of ugly hardcoding goes there
       content = nil
       if display_or_not
         if ((element.node_name.eql? "img") || (element.node_name.eql? "a")) then
@@ -57,9 +59,4 @@ class TemplateCrawler
     doc = Nokogiri::HTML(page_source)
     return doc.xpath(xpath)
   end
-end
-
-if __FILE__ == $0
-  driver = WebdriverProxy.new :chrome
-  driver.goto "http://www.google.com"
 end
