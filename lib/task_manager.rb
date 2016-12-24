@@ -24,38 +24,32 @@ class TaskManager
     end
     if urls.respond_to?("each")
       urls.each do |url|
-        if @aggregator.has_crawled(url)
-          next
-        end
-        template = find_templates_for_url(url, templates)
-        crawler = TemplateCrawler.new(@webdriver)
-        res =  crawler.crawl(url, template)
-        @aggregator.aggregate(res)
-        if res[:next_steps].present?
-          res[:next_steps].each do |next_url|
-            if submit(next_url, find_templates_for_url(next_url, templates))
-              sleep(1)
-            end
-          end
-        end
+        crawl_single_url(url, templates, @aggregator)
       end
     else 
-      if @aggregator.has_crawled(urls)
-        return false
-      end
-      template = find_templates_for_url(urls, templates)
-      crawler = TemplateCrawler.new(@webdriver)
-      res = crawler.crawl(urls, template)
-      @aggregator.aggregate(res)
-      if res[:next_steps].present?
-        res[:next_steps].each do |next_url|
-          if submit(next_url, find_templates_for_url(next_url, templates))
-            sleep(1)
-          end
-        end
-      end
+      crawl_single_url(urls, templates, @aggregator)
     end
     return true
+  end
+
+  def crawl_single_url(url, templates, aggregator)
+    begin
+      if aggregator.has_crawled(url)
+        return nil
+      end
+      template = find_templates_for_url(url, templates)
+      crawler = TemplateCrawler.new(@webdriver)
+      res =  crawler.crawl(url, template)
+      aggregator.aggregate(res)
+      sleep(1)
+      if res[:next_steps].present?
+        res[:next_steps].each do |next_url|
+          submit(next_url, find_templates_for_url(next_url, templates))
+        end
+      end
+    rescue Exception => e
+      puts "Unexpected error: " + e.message
+    end
   end
 
   def find_templates_for_url(url, templates)

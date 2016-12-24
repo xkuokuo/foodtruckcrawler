@@ -16,11 +16,15 @@ class SimpleFileAggregator
   def aggregate(obj)
     @count += 1
     @has_crawled[obj[:url]] = true
+    if !obj.present? 
+      puts "non-exist?"
+      return
+    end
+    puts "exist?"
     @mutex.synchronize {
       File.open(@filename, 'a') { |f|
         f.write(obj.to_json + "\n")
       }
-      
     }
   end
 
