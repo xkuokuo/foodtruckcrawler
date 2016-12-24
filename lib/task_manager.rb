@@ -3,19 +3,26 @@ require 'pry'
 require 'logger'
 require_relative 'template_crawler'
 require_relative 'simple_file_aggregator'
+require_relative 'dfs_task_scheduler'
 
 class TaskManager
-  def initialize(webdriver:, urls:, templates:, limit: 100, aggregator:)
+  def initialize(webdriver:, urls:, templates:, limit: 100, aggregator:, scheduler: DfsTaskScheduler.new)
     @webdriver = webdriver
-    @urls = urls
+    @urls = [].push(urls).flatten
     @templates = templates
     @limit= limit
     @aggregator = aggregator
     @logger = Logger.new STDOUT
+    @scheduler = scheduler
+    @scheduler.add_tasks(@urls)
   end
 
   def start()
-    submit(@urls, @templates)
+    #while @urls.present?
+    while @scheduler.has_next?
+      url = @scheduler.get_task
+      submit(url, @templates)
+    end
   end
 
   def submit(urls, templates)
@@ -26,39 +33,47 @@ class TaskManager
     end
     if urls.respond_to?("each")
       urls.each do |url|
-        crawl_single_url(url, templates, @aggregator)
+        res = crawl_single_url(url, templates, @aggregator)
+        #@urls = @urls.push(get_next_steps(res).select {|e| !@aggregator.has_crawled(e)}).flatten().uniq
+        @scheduler.add_tasks(get_next_steps(res).select {|e| !@aggregator.has_crawled(e)})
       end
     else 
-      crawl_single_url(urls, templates, @aggregator)
+      res = crawl_single_url(urls, templates, @aggregator)
+      #@urls.push(get_next_steps(res)).flatten
+      #@urls = @urls.push(get_next_steps(res).select {|e| !@aggregator.has_crawled(e)}).flatten().uniq
+      @scheduler.add_tasks(get_next_steps(res).select {|e| !@aggregator.has_crawled(e)})
     end
     return true
   end
 
   def crawl_single_url(url, templates, aggregator, retries = 5)
-      if aggregator.has_crawled(url)
-        return nil
+    if !url.present? || aggregator.has_crawled(url)
+      return nil
+    end
+    res = nil
+    retries.times { |i|
+      begin 
+        template = find_templates_for_url(url, templates)
+        crawler = TemplateCrawler.new(@webdriver)
+        res =  crawler.crawl(url, template)
+        break
+      rescue Exception => e
+        @logger.error "Unexpected error: #{e.message}\nTry again (#{retries - i - 1} tries remaining)"
       end
-      template = find_templates_for_url(url, templates)
-      res = nil
-      crawler = TemplateCrawler.new(@webdriver)
-      retries.times { |i|
-        begin 
-          res =  crawler.crawl(url, template)
-          break
-        rescue Exception => e
-          puts "Unexpected error: #{e.message}\nTry again (#{retries - i - 1} tries remaining)"
-        end
-        if i >= retries 
-          return
-        end
-      }
-      aggregator.aggregate(res)
-      sleep(1)
-      if res[:next_steps].present?
-        res[:next_steps].each do |next_url|
-          submit(next_url, find_templates_for_url(next_url, templates))
-        end
+      if i >= retries 
+        return
       end
+    }
+    aggregator.aggregate(res)
+    sleep(1)
+    res
+  end
+
+  def get_next_steps(crawl_res)
+    if crawl_res.respond_to?("[]") && crawl_res[:next_steps].present?
+      return crawl_res[:next_steps]
+    end
+    return []
   end
 
   def find_templates_for_url(url, templates)
