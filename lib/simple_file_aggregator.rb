@@ -17,10 +17,8 @@ class SimpleFileAggregator
     @count += 1
     @has_crawled[obj[:url]] = true
     if !obj.present? 
-      puts "non-exist?"
       return
     end
-    puts "exist?"
     @mutex.synchronize {
       File.open(@filename, 'a') { |f|
         f.write(obj.to_json + "\n")
@@ -29,7 +27,6 @@ class SimpleFileAggregator
   end
 
   def has_crawled(url)
-    puts "Has crawled? #{@has_crawled[url]}"
     @has_crawled[url]
   end
 

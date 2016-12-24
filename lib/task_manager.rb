@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'pry'
+require 'logger'
 require_relative 'template_crawler'
 require_relative 'simple_file_aggregator'
 
@@ -10,6 +11,7 @@ class TaskManager
     @templates = templates
     @limit= limit
     @aggregator = aggregator
+    @logger = Logger.new STDOUT
   end
 
   def start()
@@ -17,9 +19,9 @@ class TaskManager
   end
 
   def submit(urls, templates)
-    puts "Crawling urls: #{urls}"
+    @logger.info "Crawling urls: #{urls}"
     if @aggregator.count > @limit
-      puts "reached crawling limit #{@limit}"
+      @logger.warn "reached crawling limit #{@limit}"
       return false
     end
     if urls.respond_to?("each")
@@ -32,14 +34,24 @@ class TaskManager
     return true
   end
 
-  def crawl_single_url(url, templates, aggregator)
-    begin
+  def crawl_single_url(url, templates, aggregator, retries = 5)
       if aggregator.has_crawled(url)
         return nil
       end
       template = find_templates_for_url(url, templates)
+      res = nil
       crawler = TemplateCrawler.new(@webdriver)
-      res =  crawler.crawl(url, template)
+      retries.times { |i|
+        begin 
+          res =  crawler.crawl(url, template)
+          break
+        rescue Exception => e
+          puts "Unexpected error: #{e.message}\nTry again (#{retries - i - 1} tries remaining)"
+        end
+        if i >= retries 
+          return
+        end
+      }
       aggregator.aggregate(res)
       sleep(1)
       if res[:next_steps].present?
@@ -47,9 +59,6 @@ class TaskManager
           submit(next_url, find_templates_for_url(next_url, templates))
         end
       end
-    rescue Exception => e
-      puts "Unexpected error: " + e.message
-    end
   end
 
   def find_templates_for_url(url, templates)
@@ -72,5 +81,4 @@ class TaskManager
     end
     res
   end
-
 end
