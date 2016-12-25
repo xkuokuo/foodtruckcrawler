@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 require 'pry'
-require 'logger'
 require 'nokogiri'
 require 'active_support'
 require 'active_support/core_ext'
@@ -10,11 +9,18 @@ require_relative 'webdriver_proxy'
 class TemplateCrawler
   def initialize(webdriver)
     @webdriver = webdriver
-    @logger = Logger.new STDOUT
   end
 
   def crawl(url, template)
-    @webdriver.goto url
+    retries = 5
+    retries.times { |i|
+      begin
+        @webdriver.goto url
+        break
+      rescue
+        puts "timeout..."
+      end
+    }
     page_source = @webdriver.page_source
     doc = Nokogiri::HTML(page_source)
     next_steps = doc.xpath(template["next_steps"]).map {|step| step.value}
@@ -30,7 +36,7 @@ class TemplateCrawler
     elements = doc.xpath(xpath)
     children_template = template["children"]
 
-    res = elements.map do |element|  
+    res = elements.map do |element|
       #A bunch of ugly hardcoding goes there
       content = nil
       if display_or_not
@@ -54,8 +60,8 @@ class TemplateCrawler
       tmpres
     end
   end
-  
-  def find_elements_by_xpath(page_source, xpath) 
+
+  def find_elements_by_xpath(page_source, xpath)
     doc = Nokogiri::HTML(page_source)
     return doc.xpath(xpath)
   end

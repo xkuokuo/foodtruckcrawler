@@ -8,9 +8,7 @@ class SimpleFileAggregator
     @has_crawled = {}
     @count = 0;
     @mutex = Mutex.new
-    if !File.exist?(filename)
-      File.open(filename, 'w') {|f| f.write('')}
-    end
+    File.open(filename, 'w') {|f| f.write('')}
   end
 
   def aggregate(obj)

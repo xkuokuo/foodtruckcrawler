@@ -9,12 +9,12 @@ class FoodtruckCrawler
     url = "http://www.seattlefoodtruck.com"
     filename = "../var/output/aggregator_result.txt"
     filename = File.join(File.dirname(__FILE__), filename)
-    driver = WebdriverProxy.new :chrome
+    #driver = WebdriverProxy.new :chrome
     templates = []
     templates = [JSON.parse(readfile("../template/foodtruckhome.json")), JSON.parse(readfile("../template/foodtruck.json"))]
-    task_manager = TaskManager.new(webdriver: driver, urls: url, templates: templates, aggregator: SimpleFileAggregator.new(filename))
+    task_manager = TaskManager.new(urls: url, templates: templates, aggregator: SimpleFileAggregator.new(filename))
     task_manager.start
-    driver.close
+    #driver.close
     puts "Crawling finished. Result stored in " + filename
   end
 end
